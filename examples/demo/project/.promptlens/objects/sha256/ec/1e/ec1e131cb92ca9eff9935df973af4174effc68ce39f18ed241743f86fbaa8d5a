@@ -1,0 +1,15 @@
+{
+  "content": "不知道。订单请自行查看。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 18,
+    "outputTokens": 3,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "cb7b7e4bc8e4"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

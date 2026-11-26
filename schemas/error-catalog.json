@@ -1,0 +1,423 @@
+{
+  "schema": "promptlens.error-catalog/v1",
+  "apiVersion": "v1",
+  "description": "Single source of truth for machine error codes, retryability and CLI exit codes. Message and remediation are localized at render time; automation must depend only on code, retryable, details and exitCode.",
+  "families": [
+    {
+      "prefix": "AUTH_",
+      "defaultRetryable": false,
+      "cliExitCode": 4,
+      "meaning": "Credential, scope or project access problem."
+    },
+    {
+      "prefix": "VALIDATION_",
+      "defaultRetryable": false,
+      "cliExitCode": 3,
+      "meaning": "Invalid input, asset, schema or unresolved variable."
+    },
+    {
+      "prefix": "NOT_FOUND_",
+      "defaultRetryable": false,
+      "cliExitCode": 5,
+      "meaning": "Requested project, version, run or report does not exist."
+    },
+    {
+      "prefix": "STATE_",
+      "defaultRetryable": false,
+      "cliExitCode": 6,
+      "meaning": "Illegal state transition, frozen version conflict or idempotency conflict."
+    },
+    {
+      "prefix": "BUDGET_",
+      "defaultRetryable": false,
+      "cliExitCode": 7,
+      "meaning": "Cost, token, duration or trial limit reached."
+    },
+    {
+      "prefix": "PROVIDER_",
+      "defaultRetryable": null,
+      "cliExitCode": null,
+      "meaning": "Normalized provider failure; exit code follows error.retryable (10 retryable, 11 not retryable)."
+    },
+    {
+      "prefix": "STORAGE_",
+      "defaultRetryable": false,
+      "cliExitCode": 11,
+      "meaning": "Disk, database or content object failure."
+    },
+    {
+      "prefix": "INTEGRATION_",
+      "defaultRetryable": null,
+      "cliExitCode": null,
+      "meaning": "MCP, CLI or transport integration failure; exit code follows error.retryable."
+    },
+    {
+      "prefix": "INTERNAL_",
+      "defaultRetryable": false,
+      "cliExitCode": 11,
+      "meaning": "Unclassified internal error."
+    }
+  ],
+  "codes": [
+    {
+      "code": "AUTH_UNAUTHORIZED",
+      "family": "AUTH_",
+      "retryable": false,
+      "scope": "request",
+      "exitCode": 4,
+      "message": "缺少有效凭据。",
+      "remediation": "在集成设置中重新授权或提供有效 token。"
+    },
+    {
+      "code": "AUTH_SCOPE_INSUFFICIENT",
+      "family": "AUTH_",
+      "retryable": false,
+      "scope": "request",
+      "exitCode": 4,
+      "message": "当前凭据 scope 不足。",
+      "remediation": "申请包含所需能力的 scope；不要重复重试。"
+    },
+    {
+      "code": "AUTH_PROJECT_FORBIDDEN",
+      "family": "AUTH_",
+      "retryable": false,
+      "scope": "project",
+      "exitCode": 4,
+      "message": "凭据无权访问该项目。",
+      "remediation": "切换到被授权的项目或更新项目授权。"
+    },
+    {
+      "code": "AUTH_CREDENTIAL_UNAVAILABLE",
+      "family": "AUTH_",
+      "retryable": false,
+      "scope": "preflight",
+      "exitCode": 4,
+      "message": "凭据引用无法解析。",
+      "remediation": "重新输入密钥，或确保 credentialRef 指向的环境变量在启动进程中存在。"
+    },
+    {
+      "code": "VALIDATION_INVALID_REQUEST",
+      "family": "VALIDATION_",
+      "retryable": false,
+      "scope": "request",
+      "exitCode": 3,
+      "message": "请求格式或参数不合法。",
+      "remediation": "根据 details 修正字段后重试。"
+    },
+    {
+      "code": "VALIDATION_SCHEMA_INVALID",
+      "family": "VALIDATION_",
+      "retryable": false,
+      "scope": "spec",
+      "exitCode": 3,
+      "message": "实验规格未通过 Schema 校验。",
+      "remediation": "按 details 中的字段路径修正规格。"
+    },
+    {
+      "code": "VALIDATION_UNRESOLVED_VARIABLE",
+      "family": "VALIDATION_",
+      "retryable": false,
+      "scope": "preflight",
+      "exitCode": 3,
+      "message": "存在无法解析的提示词变量。",
+      "remediation": "补齐用例变量绑定或为变量声明默认值。"
+    },
+    {
+      "code": "VALIDATION_REPORT_TEMPLATE_INVALID",
+      "family": "VALIDATION_",
+      "retryable": false,
+      "scope": "report",
+      "exitCode": 3,
+      "message": "报告模板缺少必备章节或引用未知变量。",
+      "remediation": "恢复必备章节或改为受支持的变量后重新生成。"
+    },
+    {
+      "code": "VALIDATION_UNSUPPORTED_FORMAT",
+      "family": "VALIDATION_",
+      "retryable": false,
+      "scope": "import",
+      "exitCode": 3,
+      "message": "导入格式不受支持。",
+      "remediation": "改用 CSV、JSON 或 JSONL。"
+    },
+    {
+      "code": "NOT_FOUND_PROJECT",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "project",
+      "exitCode": 5,
+      "message": "项目不存在或未绑定。",
+      "remediation": "重新定位项目目录或创建新项目。"
+    },
+    {
+      "code": "NOT_FOUND_PROMPT_VERSION",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "asset",
+      "exitCode": 5,
+      "message": "提示词版本不存在。",
+      "remediation": "刷新资产列表后重新选择版本。"
+    },
+    {
+      "code": "NOT_FOUND_RUN",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "run",
+      "exitCode": 5,
+      "message": "运行不存在。",
+      "remediation": "检查 runId 是否属于当前项目。"
+    },
+    {
+      "code": "NOT_FOUND_REPORT",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "report",
+      "exitCode": 5,
+      "message": "报告版本不存在。",
+      "remediation": "重新生成报告并记录新的 reportId。"
+    },
+    {
+      "code": "NOT_FOUND_SUGGESTION",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "suggestion",
+      "exitCode": 5,
+      "message": "提示词优化建议不存在。",
+      "remediation": "刷新建议列表后重新选择。"
+    },
+    {
+      "code": "NOT_FOUND_MODEL",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "model",
+      "exitCode": 5,
+      "message": "模型配置不存在。",
+      "remediation": "刷新模型目录或手工添加模型 ID。"
+    },
+    {
+      "code": "NOT_FOUND_DRAFT",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "project",
+      "exitCode": 5,
+      "message": "实验草稿不存在。",
+      "remediation": "刷新草稿列表，或新建草稿。"
+    },
+    {
+      "code": "NOT_FOUND_PREVIEW",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "project",
+      "exitCode": 5,
+      "message": "用例导入预览不存在或已过期。",
+      "remediation": "重新上传文件生成新的预览，再提交。"
+    },
+    {
+      "code": "NOT_FOUND_LIBRARY",
+      "family": "NOT_FOUND_",
+      "retryable": false,
+      "scope": "library",
+      "exitCode": 5,
+      "message": "用例库快照不存在。",
+      "remediation": "刷新用例库列表，确认快照未被清理后再导入。"
+    },
+    {
+      "code": "STATE_INVALID_TRANSITION",
+      "family": "STATE_",
+      "retryable": false,
+      "scope": "run",
+      "exitCode": 6,
+      "message": "当前状态不允许该操作。",
+      "remediation": "刷新状态后按允许的动作重试。"
+    },
+    {
+      "code": "STATE_EVIDENCE_MISSING",
+      "family": "STATE_",
+      "retryable": false,
+      "scope": "run",
+      "exitCode": 6,
+      "message": "缺少可用的评测证据。",
+      "remediation": "等待运行结束并完成评估，或检查评估配置是否产生了可比结果。"
+    },
+    {
+      "code": "STATE_RUN_FROZEN",
+      "family": "STATE_",
+      "retryable": false,
+      "scope": "run",
+      "exitCode": 6,
+      "message": "运行已冻结，不能修改输入。",
+      "remediation": "基于当前快照创建新运行或派生运行。"
+    },
+    {
+      "code": "STATE_IDEMPOTENCY_CONFLICT",
+      "family": "STATE_",
+      "retryable": false,
+      "scope": "request",
+      "exitCode": 6,
+      "message": "同一幂等键对应了不同的请求体。",
+      "remediation": "复用首次请求体，或使用新的幂等键。"
+    },
+    {
+      "code": "BUDGET_EXCEEDED",
+      "family": "BUDGET_",
+      "retryable": false,
+      "scope": "run_preflight",
+      "exitCode": 7,
+      "message": "预计或实际成本超过运行上限。",
+      "remediation": "提高预算、减少试次或更换模型。"
+    },
+    {
+      "code": "BUDGET_REQUIRED_LIMIT_MISSING",
+      "family": "BUDGET_",
+      "retryable": false,
+      "scope": "run_preflight",
+      "exitCode": 7,
+      "message": "未设置任何硬性预算或规模限制。",
+      "remediation": "至少设置请求数、Token、金额或时长上限之一。"
+    },
+    {
+      "code": "BUDGET_PRICE_UNKNOWN",
+      "family": "BUDGET_",
+      "retryable": false,
+      "scope": "run_preflight",
+      "exitCode": 7,
+      "message": "模型价格未知，无法执行金额上限校验。",
+      "remediation": "补充价格表，或改用 Token/请求数上限。"
+    },
+    {
+      "code": "PROVIDER_AUTH_FAILED",
+      "family": "PROVIDER_",
+      "retryable": false,
+      "scope": "provider",
+      "exitCode": 11,
+      "message": "模型服务鉴权失败。",
+      "remediation": "更新密钥并重新测试连接。"
+    },
+    {
+      "code": "PROVIDER_RATE_LIMITED",
+      "family": "PROVIDER_",
+      "retryable": true,
+      "scope": "provider",
+      "exitCode": 10,
+      "message": "模型服务限流。",
+      "remediation": "按 Retry-After 退避后重试。"
+    },
+    {
+      "code": "PROVIDER_TIMEOUT",
+      "family": "PROVIDER_",
+      "retryable": true,
+      "scope": "provider",
+      "exitCode": 10,
+      "message": "模型请求超时。",
+      "remediation": "检查网络或提高超时，再按策略重试。"
+    },
+    {
+      "code": "PROVIDER_UNAVAILABLE",
+      "family": "PROVIDER_",
+      "retryable": true,
+      "scope": "provider",
+      "exitCode": 10,
+      "message": "模型服务暂时不可用。",
+      "remediation": "退避重试；连续失败触发熔断。"
+    },
+    {
+      "code": "PROVIDER_INVALID_REQUEST",
+      "family": "PROVIDER_",
+      "retryable": false,
+      "scope": "provider",
+      "exitCode": 11,
+      "message": "模型服务拒绝了请求格式。",
+      "remediation": "检查参数和能力差异，不要盲目重试。"
+    },
+    {
+      "code": "PROVIDER_MODEL_NOT_FOUND",
+      "family": "PROVIDER_",
+      "retryable": false,
+      "scope": "provider",
+      "exitCode": 11,
+      "message": "模型 ID 不存在或未开放。",
+      "remediation": "刷新模型列表或修正模型 ID。"
+    },
+    {
+      "code": "PROVIDER_CONTEXT_TOO_LONG",
+      "family": "PROVIDER_",
+      "retryable": false,
+      "scope": "provider",
+      "exitCode": 11,
+      "message": "上下文超过模型窗口。",
+      "remediation": "缩短提示词或用例，或更换更大窗口模型。"
+    },
+    {
+      "code": "PROVIDER_POLICY_BLOCKED",
+      "family": "PROVIDER_",
+      "retryable": false,
+      "scope": "provider",
+      "exitCode": 11,
+      "message": "内容被模型服务策略拒绝。",
+      "remediation": "调整输入内容；该输出不计入质量均值。"
+    },
+    {
+      "code": "STORAGE_DB_CORRUPTED",
+      "family": "STORAGE_",
+      "retryable": false,
+      "scope": "project",
+      "exitCode": 11,
+      "message": "项目数据库完整性校验失败。",
+      "remediation": "从备份或恢复副本恢复项目。"
+    },
+    {
+      "code": "STORAGE_OBJECT_MISSING",
+      "family": "STORAGE_",
+      "retryable": false,
+      "scope": "object",
+      "exitCode": 11,
+      "message": "内容对象缺失或哈希不匹配。",
+      "remediation": "运行健康检查并从备份恢复对象。"
+    },
+    {
+      "code": "STORAGE_DISK_FULL",
+      "family": "STORAGE_",
+      "retryable": false,
+      "scope": "system",
+      "exitCode": 11,
+      "message": "磁盘空间不足，运行已暂停。",
+      "remediation": "释放空间后显式继续运行；不要自动重试以免继续写入失败。"
+    },
+    {
+      "code": "INTEGRATION_MCP_PROTOCOL_ERROR",
+      "family": "INTEGRATION_",
+      "retryable": false,
+      "scope": "mcp",
+      "exitCode": 11,
+      "message": "MCP 协议错误。",
+      "remediation": "检查协议版本、能力声明和请求结构。"
+    },
+    {
+      "code": "INTEGRATION_MCP_UNAUTHORIZED",
+      "family": "INTEGRATION_",
+      "retryable": false,
+      "scope": "mcp",
+      "exitCode": 4,
+      "message": "MCP 连接未获授权。",
+      "remediation": "在集成中心授予对应 scope 后重连。"
+    },
+    {
+      "code": "INTEGRATION_CLI_TIMEOUT",
+      "family": "INTEGRATION_",
+      "retryable": true,
+      "scope": "cli",
+      "exitCode": 124,
+      "message": "等待超时，任务可能仍在运行。",
+      "remediation": "使用 runId 查询状态，不要重复启动。"
+    },
+    {
+      "code": "INTERNAL_UNEXPECTED",
+      "family": "INTERNAL_",
+      "retryable": false,
+      "scope": "system",
+      "exitCode": 11,
+      "message": "未预期的内部错误。",
+      "remediation": "收集 traceId 与诊断包后联系支持。"
+    }
+  ]
+}

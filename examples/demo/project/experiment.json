@@ -1,0 +1,50 @@
+{
+  "schema": "promptlens.experiment/v1",
+  "projectId": "01M89T70WXE1T6NDK0CMBG27FX",
+  "name": "客服回复 A/B 演示",
+  "description": "12 条用例 × 2 个分支 × 2 次重复，使用 mock 提供方验证完整链路。",
+  "variants": [
+    {
+      "label": "A",
+      "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW3",
+      "contentHash": "sha256:faf61fde9aeb78f64569de28373164ad31294da3de27e29214b027061f849efb"
+    },
+    {
+      "label": "B",
+      "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW5",
+      "contentHash": "sha256:0b4de097893637b5b7cbb2aa96b34881357d095786e3b61a9ef980238af3f92e"
+    }
+  ],
+  "testSet": {
+    "testSetVersionId": "01M89T710E5921X6074XRD6JYH",
+    "contentHash": "sha256:05500920c365b179efe404c91cd5c8cc44d8ab31ffea79feb92ae798fd13c2b1"
+  },
+  "models": [
+    {
+      "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+      "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+      "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da"
+    }
+  ],
+  "repetitions": 2,
+  "execution": {
+    "order": "sequential",
+    "maxAttempts": 3,
+    "backoffBaseMs": 50,
+    "maxBackoffMs": 200,
+    "maxConcurrency": 4
+  },
+  "evaluation": {
+    "profileVersionId": "01M89T7124CHX3C8W7TN4FK49S",
+    "contentHash": "sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed",
+    "judgeRepetitions": 1
+  },
+  "budget": {
+    "maxRequests": 200,
+    "maxDurationSeconds": 300,
+    "maxAmount": {
+      "amount": "1.00",
+      "currency": "USD"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+schema: promptlens.project/v1
+projectId: 01M89T70WXE1T6NDK0CMBG27FX
+name: 客服回复质量实验
+createdAt: "2026-11-25T16:56:52.893Z"
+createdBy: promptlens/0.1.0
+dataDirectory: .promptlens
+minimumReaderVersion: 0.1.0
+settings:
+  autoReport: true
+  autoExport: true
+  sensitiveFields: []

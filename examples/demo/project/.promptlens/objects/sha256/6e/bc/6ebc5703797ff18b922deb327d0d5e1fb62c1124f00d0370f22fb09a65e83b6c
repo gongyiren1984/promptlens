@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，预计今天送达。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 21,
+    "outputTokens": 6,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "bc584525a7ea"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

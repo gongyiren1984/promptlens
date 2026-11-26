@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptlens.local/schemas/report.schema.json",
+  "title": "PromptLens Report Version and Report Template",
+  "description": "Report template contract and immutable report version record. Required sections cannot be removed by a template.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "reportId",
+    "projectId",
+    "runId",
+    "templateVersionId",
+    "snapshotHash",
+    "evaluationVersionIds",
+    "format",
+    "language",
+    "status",
+    "generatedAt"
+  ],
+  "properties": {
+    "schema": { "const": "promptlens.report/v1" },
+    "reportId": { "$ref": "#/$defs/id" },
+    "projectId": { "$ref": "#/$defs/id" },
+    "runId": { "$ref": "#/$defs/id" },
+    "templateVersionId": { "$ref": "#/$defs/id" },
+    "snapshotHash": { "$ref": "#/$defs/hash" },
+    "evaluationVersionIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "format": { "const": "markdown" },
+    "language": { "$ref": "#/$defs/language" },
+    "status": { "enum": ["generated", "generation_failed"] },
+    "contentHash": { "$ref": "#/$defs/hash" },
+    "path": {
+      "description": "Project-relative path under exports/reports/<runId>/. Never absolute.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "evidenceState": { "enum": ["present", "cleaned", "partial"] },
+    "redactions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "error": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "message": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "template": { "$ref": "#/$defs/reportTemplate" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "generated" } } },
+      "then": { "required": ["path", "contentHash", "evidenceState"] }
+    },
+    {
+      "if": { "properties": { "status": { "const": "generation_failed" } } },
+      "then": { "required": ["error"] }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+    },
+    "sectionId": {
+      "enum": [
+        "summary",
+        "snapshot",
+        "method",
+        "results",
+        "evidence",
+        "failures",
+        "cost",
+        "uncertainty",
+        "limitations",
+        "methodology_notes"
+      ]
+    },
+    "reportTemplate": {
+      "title": "ReportTemplate",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "templateVersionId",
+        "name",
+        "versionNumber",
+        "language",
+        "outputFormat",
+        "sections",
+        "contentHash"
+      ],
+      "properties": {
+        "schema": { "const": "promptlens.report-template/v1" },
+        "templateVersionId": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "versionNumber": { "type": "integer", "minimum": 1 },
+        "language": { "$ref": "#/$defs/language" },
+        "outputFormat": { "const": "markdown" },
+        "sections": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "title", "required", "order"],
+            "properties": {
+              "id": { "$ref": "#/$defs/sectionId" },
+              "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "required": { "type": "boolean" },
+              "order": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "allOf": [
+            { "$ref": "#/$defs/requiresSectionSummary" },
+            { "$ref": "#/$defs/requiresSectionSnapshot" },
+            { "$ref": "#/$defs/requiresSectionMethod" },
+            { "$ref": "#/$defs/requiresSectionResults" },
+            { "$ref": "#/$defs/requiresSectionEvidence" },
+            { "$ref": "#/$defs/requiresSectionFailures" },
+            { "$ref": "#/$defs/requiresSectionCost" },
+            { "$ref": "#/$defs/requiresSectionUncertainty" },
+            { "$ref": "#/$defs/requiresSectionLimitations" }
+          ]
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "source", "required"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+              "source": {
+                "enum": [
+                  "run_summary",
+                  "snapshot",
+                  "evaluation_profile",
+                  "trial_matrix",
+                  "failure_list",
+                  "cost_summary",
+                  "uncertainty",
+                  "user_note"
+                ]
+              },
+              "required": { "type": "boolean" }
+            }
+          }
+        },
+        "contentHash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "requiresSectionSummary": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "summary" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionSnapshot": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "snapshot" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionMethod": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "method" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionResults": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "results" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionEvidence": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "evidence" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionFailures": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "failures" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionCost": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "cost" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionUncertainty": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "uncertainty" },
+          "required": { "const": true }
+        }
+      }
+    },
+    "requiresSectionLimitations": {
+      "contains": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": { "const": "limitations" },
+          "required": { "const": true }
+        }
+      }
+    }
+  }
+}

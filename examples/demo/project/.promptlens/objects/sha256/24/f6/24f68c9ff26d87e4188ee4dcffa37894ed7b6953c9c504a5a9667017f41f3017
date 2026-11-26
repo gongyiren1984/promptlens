@@ -1,0 +1,15 @@
+{
+  "content": "订单破损请自行查看处理。",
+  "finishReason": "length",
+  "usage": {
+    "inputTokens": 16,
+    "outputTokens": 3,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "8c7bbfc1c878"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

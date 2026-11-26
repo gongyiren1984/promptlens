@@ -1,0 +1,35 @@
+{
+  "name": "promptlens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PromptLens 本地优先提示词实验工作台（P0 参考实现 + Tauri 桌面 UI）",
+  "bin": {
+    "promptlens": "bin/promptlens.js"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "demo": "node scripts/demo.js",
+    "start": "node bin/promptlens.js",
+    "serve": "node bin/promptlens.js serve --workspace . --json",
+    "dev": "node scripts/dev.js",
+    "build:ui": "npm --workspace @promptlens/desktop run build",
+    "verify": "npm test && npm run typecheck && npm run contracts:check && npm run build:ui",
+    "typecheck": "npm --workspace @promptlens/desktop run typecheck",
+    "contracts:generate": "node scripts/generate-contracts.js",
+    "contracts:check": "node scripts/generate-contracts.js --check",
+    "notices:generate": "node scripts/generate-notices.js",
+    "notices:check": "node scripts/generate-notices.js --check",
+    "sidecar:build": "node scripts/build-sidecar.js",
+    "tauri:dev": "npm --workspace @promptlens/desktop run tauri dev",
+    "tauri:build": "npm --workspace @promptlens/desktop run tauri build"
+  },
+  "license": "AGPL-3.0-or-later OR GPL-3.0-or-later"
+}

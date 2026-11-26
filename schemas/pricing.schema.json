@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptlens.local/schemas/pricing.schema.json",
+  "title": "PromptLens Price Table",
+  "description": "Versioned, immutable price table. Unknown prices must be null, never 0. Cross-currency conversion requires explicit fx evidence and is never implicit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "priceTableId",
+    "version",
+    "effectiveFrom",
+    "currency",
+    "source",
+    "models"
+  ],
+  "properties": {
+    "schema": { "const": "promptlens.pricing/v1" },
+    "priceTableId": { "$ref": "#/$defs/id" },
+    "version": { "type": "integer", "minimum": 1 },
+    "effectiveFrom": { "type": "string", "format": "date-time" },
+    "effectiveTo": { "type": ["string", "null"], "format": "date-time" },
+    "currency": { "$ref": "#/$defs/currency" },
+    "source": {
+      "description": "Where the prices came from, e.g. official pricing page and retrieval date.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "unknownPricePolicy": {
+      "enum": ["block_amount_budget", "estimate_by_tokens", "mark_incomplete"],
+      "default": "mark_incomplete"
+    },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["providerType", "modelId", "unit"],
+        "properties": {
+          "providerType": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "modelId": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "deploymentAlias": { "type": "string", "maxLength": 200 },
+          "unit": {
+            "enum": ["per_million_tokens", "per_token", "per_request"]
+          },
+          "input": { "$ref": "#/$defs/price" },
+          "output": { "$ref": "#/$defs/price" },
+          "cachedInput": { "$ref": "#/$defs/price" },
+          "reasoning": { "$ref": "#/$defs/price" },
+          "perRequest": { "$ref": "#/$defs/price" },
+          "currencyOverride": { "$ref": "#/$defs/currency" },
+          "notes": { "type": "string", "maxLength": 1000 }
+        },
+        "allOf": [
+          {
+            "description": "per_request tables must price perRequest and must not price token fields.",
+            "if": { "properties": { "unit": { "const": "per_request" } } },
+            "then": {
+              "required": ["perRequest"],
+              "properties": {
+                "input": { "type": "null" },
+                "output": { "type": "null" },
+                "cachedInput": { "type": "null" },
+                "reasoning": { "type": "null" }
+              }
+            }
+          },
+          {
+            "description": "Token-based tables must price input and output.",
+            "if": {
+              "properties": {
+                "unit": { "enum": ["per_million_tokens", "per_token"] }
+              }
+            },
+            "then": {
+              "required": ["input", "output"],
+              "properties": { "perRequest": { "type": "null" } }
+            }
+          }
+        ]
+      }
+    },
+    "fx": {
+      "description": "Optional conversion evidence. Absence means no conversion is applied.",
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["baseCurrency", "quotedCurrency", "rate", "asOf", "source"],
+      "properties": {
+        "baseCurrency": { "$ref": "#/$defs/currency" },
+        "quotedCurrency": { "$ref": "#/$defs/currency" },
+        "rate": { "$ref": "#/$defs/decimal" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "source": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "decimal": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,12})?$"
+    },
+    "price": {
+      "description": "Decimal unit price, or null when the provider price is unknown.",
+      "type": ["string", "null"],
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,12})?$"
+    }
+  }
+}

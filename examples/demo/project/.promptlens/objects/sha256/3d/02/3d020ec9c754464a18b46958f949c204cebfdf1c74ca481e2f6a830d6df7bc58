@@ -1,0 +1,15 @@
+{
+  "content": "",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 21,
+    "outputTokens": 1,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "9222729ae1a7"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

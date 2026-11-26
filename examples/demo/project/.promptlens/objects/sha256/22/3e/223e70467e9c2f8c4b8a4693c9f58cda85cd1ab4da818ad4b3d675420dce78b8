@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，收货地址可以在配送前修改。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 20,
+    "outputTokens": 8,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "4d7f58484a94"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

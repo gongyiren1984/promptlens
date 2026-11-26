@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptlens.local/schemas/cli-result.schema.json",
+  "title": "PromptLens CLI and MCP Result Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "requestId", "ok", "warnings", "error", "meta"],
+  "properties": {
+    "apiVersion": {
+      "const": "v1"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "data": {},
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "details": {}
+        }
+      }
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message", "retryable", "scope"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]+$"
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1
+            },
+            "details": {},
+            "remediation": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["serverVersion", "completedAt"],
+      "properties": {
+        "serverVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "traceId": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "ok": {"const": true}
+        },
+        "required": ["ok"]
+      },
+      "then": {
+        "properties": {
+          "error": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "ok": {"const": false}
+        },
+        "required": ["ok"]
+      },
+      "then": {
+        "properties": {
+          "error": {"type": "object"}
+        }
+      }
+    }
+  ]
+}
+

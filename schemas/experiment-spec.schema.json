@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptlens.local/schemas/experiment-spec.schema.json",
+  "title": "PromptLens Experiment Specification",
+  "description": "Preflight specification used to create an immutable PromptLens run snapshot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "projectId",
+    "name",
+    "variants",
+    "testSet",
+    "models",
+    "repetitions",
+    "evaluation",
+    "budget"
+  ],
+  "properties": {
+    "schema": {
+      "const": "promptlens.experiment/v1"
+    },
+    "projectId": {
+      "$ref": "#/$defs/id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "variants": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "promptVersionId", "contentHash"],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "promptVersionId": {
+            "$ref": "#/$defs/id"
+          },
+          "contentHash": {
+            "$ref": "#/$defs/hash"
+          }
+        }
+      }
+    },
+    "testSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["testSetVersionId", "contentHash"],
+      "properties": {
+        "testSetVersionId": {
+          "$ref": "#/$defs/id"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "sampleSize": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "samplingSeed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["modelConfigVersionId", "modelProfileId", "contentHash"],
+        "properties": {
+          "modelConfigVersionId": {
+            "$ref": "#/$defs/id"
+          },
+          "modelProfileId": {
+            "$ref": "#/$defs/id"
+          },
+          "contentHash": {
+            "$ref": "#/$defs/hash"
+          },
+          "fallbackModelConfigVersionIds": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        }
+      }
+    },
+    "repetitions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "enum": ["sequential", "seeded_random"]
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "backoffBaseMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxBackoffMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "dialogue": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxRounds", "generatorModelConfigVersionId"],
+          "properties": {
+            "maxRounds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "generatorModelConfigVersionId": {
+              "$ref": "#/$defs/id"
+            },
+            "generatorPromptVersionId": {
+              "$ref": "#/$defs/id"
+            },
+            "initialInputPolicy": {
+              "enum": ["case_first", "generator_first"]
+            },
+            "maxOutputTokensPerTurn": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32768
+            },
+            "termination": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "value"],
+                "properties": {
+                  "type": {
+                    "enum": ["literal", "regex", "json_condition"]
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileVersionId", "contentHash"],
+      "properties": {
+        "profileVersionId": {
+          "$ref": "#/$defs/id"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/hash"
+        },
+        "judgeModelConfigVersionId": {
+          "$ref": "#/$defs/id"
+        },
+        "judgePromptVersionId": {
+          "$ref": "#/$defs/id"
+        },
+        "judgeRepetitions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9
+        },
+        "pairwise": {
+          "type": "boolean"
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxRequests": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxTotalTokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxDurationSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxAmount": {
+          "$ref": "#/$defs/money"
+        },
+        "reservePercent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        }
+      },
+      "anyOf": [
+        {"required": ["maxRequests"]},
+        {"required": ["maxTotalTokens"]},
+        {"required": ["maxDurationSeconds"]},
+        {"required": ["maxAmount"]}
+      ]
+    },
+    "templateVersionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9.-]+/[a-zA-Z0-9._-]+$"
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,8})?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,15 @@
+{
+  "content": "mock-56b94c34179a: {\"question\":\"能开发票吗？\"}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 12,
+    "outputTokens": 10,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "56b94c34179a"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

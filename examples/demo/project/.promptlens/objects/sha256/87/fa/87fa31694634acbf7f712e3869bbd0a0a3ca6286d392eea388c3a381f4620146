@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，请检查优惠券使用门槛与有效期。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 21,
+    "outputTokens": 8,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "9dc535aca97a"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

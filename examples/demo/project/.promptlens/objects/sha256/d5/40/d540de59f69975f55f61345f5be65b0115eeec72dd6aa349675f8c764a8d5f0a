@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，请拍照并申请售后。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 20,
+    "outputTokens": 7,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "5e6451a3a238"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

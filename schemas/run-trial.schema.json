@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptlens.local/schemas/run-trial.schema.json",
+  "title": "PromptLens Run, Trial and Attempt runtime records",
+  "description": "Authoritative machine contract for run status, the three orthogonal trial state axes, attempts, fallback accounting and derived counts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run", "counts", "trials"],
+  "properties": {
+    "run": { "$ref": "#/$defs/run" },
+    "counts": { "$ref": "#/$defs/runCounts" },
+    "trials": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/trial" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "runStatus": {
+      "title": "RunStatus",
+      "description": "snake_case machine values; prose may use localized labels.",
+      "enum": [
+        "draft",
+        "queued",
+        "running",
+        "paused",
+        "cancel_requested",
+        "completed",
+        "completed_with_errors",
+        "canceled",
+        "failed"
+      ]
+    },
+    "trialStatus": {
+      "title": "TrialStatus",
+      "description": "Execution job status only. completed means the request and its record finished; it does not mean the output is usable.",
+      "enum": [
+        "queued",
+        "running",
+        "retrying",
+        "completed",
+        "failed",
+        "canceled",
+        "aborted_unknown"
+      ]
+    },
+    "outputValidity": {
+      "title": "OutputValidity",
+      "description": "Produced by the execution engine's response normalization step from the frozen spec. The evaluation engine consumes it and never re-decides transport facts.",
+      "enum": [
+        "not_available",
+        "valid",
+        "invalid_empty",
+        "invalid_truncated",
+        "invalid_format",
+        "policy_blocked"
+      ]
+    },
+    "evaluationStatus": {
+      "title": "EvaluationStatus",
+      "enum": ["not_requested", "pending", "completed", "incomplete", "failed"]
+    },
+    "ineligibilityReason": {
+      "title": "IneligibilityReason",
+      "enum": [
+        "pending_execution",
+        "cross_model_fallback",
+        "non_paired_test_set",
+        "different_model_params",
+        "different_evaluation_profile",
+        "invalid_output",
+        "missing_required_dimension",
+        "budget_exhausted",
+        "canceled",
+        "unknown_state",
+        "manual_selection"
+      ]
+    },
+    "billingState": {
+      "title": "BillingState",
+      "enum": ["known", "unknown", "not_applicable"]
+    },
+    "attemptStatus": {
+      "title": "AttemptStatus",
+      "enum": ["in_flight", "succeeded", "failed", "canceled", "aborted_unknown"]
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inputTokens": { "type": ["integer", "null"], "minimum": 0 },
+        "outputTokens": { "type": ["integer", "null"], "minimum": 0 },
+        "cachedInputTokens": { "type": ["integer", "null"], "minimum": 0 },
+        "reasoningTokens": { "type": ["integer", "null"], "minimum": 0 },
+        "raw": {
+          "description": "Provider usage object as received, unmodified.",
+          "type": ["object", "null"]
+        },
+        "normalizerVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "projectId",
+        "snapshotId",
+        "snapshotHash",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "projectId": { "$ref": "#/$defs/id" },
+        "snapshotId": { "$ref": "#/$defs/id" },
+        "snapshotHash": { "$ref": "#/$defs/hash" },
+        "status": { "$ref": "#/$defs/runStatus" },
+        "parentRunId": { "$ref": "#/$defs/id" },
+        "retryOfTrialIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "uniqueItems": true
+        },
+        "createdAt": { "$ref": "#/$defs/timestamp" },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "finishedAt": { "$ref": "#/$defs/timestamp" },
+        "updatedAt": { "$ref": "#/$defs/timestamp" },
+        "stopReason": {
+          "enum": [
+            "user_cancel",
+            "budget_exceeded",
+            "duration_exceeded",
+            "request_limit",
+            "provider_circuit_open",
+            "fatal_error"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "completed" } } },
+          "then": {
+            "required": ["finishedAt"],
+            "properties": { "stopReason": { "type": "null" } }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "completed_with_errors" } } },
+          "then": { "required": ["finishedAt"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": { "enum": ["canceled", "failed", "completed", "completed_with_errors"] }
+            }
+          },
+          "then": { "required": ["finishedAt"] }
+        }
+      ]
+    },
+    "runCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "queued",
+        "running",
+        "retrying",
+        "completed",
+        "failed",
+        "canceled",
+        "abortedUnknown",
+        "outputValid",
+        "outputInvalid",
+        "comparisonEligible",
+        "fallbackUsed"
+      ],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "queued": { "type": "integer", "minimum": 0 },
+        "running": { "type": "integer", "minimum": 0 },
+        "retrying": { "type": "integer", "minimum": 0 },
+        "completed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "canceled": { "type": "integer", "minimum": 0 },
+        "abortedUnknown": { "type": "integer", "minimum": 0 },
+        "outputValid": { "type": "integer", "minimum": 0 },
+        "outputInvalid": { "type": "integer", "minimum": 0 },
+        "comparisonEligible": { "type": "integer", "minimum": 0 },
+        "fallbackUsed": { "type": "integer", "minimum": 0 }
+      },
+      "description": "completed includes outputInvalid; do not add them when computing total. 有效率分母为全部终态 Trial。"
+    },
+    "trial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "runId",
+        "variantVersionId",
+        "caseVersionId",
+        "modelConfigVersionId",
+        "repetitionIndex",
+        "idempotencyKey",
+        "trialStatus",
+        "outputValidity",
+        "evaluationStatus",
+        "comparisonEligible",
+        "ineligibilityReasons",
+        "attempts"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "runId": { "$ref": "#/$defs/id" },
+        "variantVersionId": { "$ref": "#/$defs/id" },
+        "caseVersionId": { "$ref": "#/$defs/id" },
+        "modelConfigVersionId": { "$ref": "#/$defs/id" },
+        "repetitionIndex": { "type": "integer", "minimum": 0 },
+        "idempotencyKey": { "type": "string", "minLength": 16 },
+        "trialStatus": { "$ref": "#/$defs/trialStatus" },
+        "outputValidity": { "$ref": "#/$defs/outputValidity" },
+        "evaluationStatus": { "$ref": "#/$defs/evaluationStatus" },
+        "comparisonEligible": { "type": "boolean" },
+        "ineligibilityReasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ineligibilityReason" }
+        },
+        "truncated": { "type": "boolean" },
+        "attempts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/attempt" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "trialStatus": { "enum": ["queued", "running", "retrying"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "outputValidity": { "const": "not_available" },
+              "evaluationStatus": { "const": "not_requested" },
+              "comparisonEligible": { "const": false }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "trialStatus": { "enum": ["failed", "canceled", "aborted_unknown"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "outputValidity": { "const": "not_available" },
+              "comparisonEligible": { "const": false },
+              "ineligibilityReasons": { "minItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "trialStatus": { "const": "completed" } }
+          },
+          "then": {
+            "properties": {
+              "outputValidity": {
+                "enum": [
+                  "valid",
+                  "invalid_empty",
+                  "invalid_truncated",
+                  "invalid_format",
+                  "policy_blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "comparisonEligible": { "const": true } }
+          },
+          "then": {
+            "properties": {
+              "outputValidity": { "const": "valid" },
+              "ineligibilityReasons": { "maxItems": 0 }
+            }
+          },
+          "else": {
+            "properties": {
+              "ineligibilityReasons": { "minItems": 1 }
+            }
+          }
+        }
+      ]
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "trialId",
+        "attemptNumber",
+        "status",
+        "startedAt",
+        "originalModelConfigVersionId",
+        "actualModelConfigVersionId",
+        "originalModelId",
+        "actualModelId",
+        "fallbackUsed",
+        "crossModelSubstitution",
+        "billingState"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "trialId": { "$ref": "#/$defs/id" },
+        "attemptNumber": { "type": "integer", "minimum": 1 },
+        "status": { "$ref": "#/$defs/attemptStatus" },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "finishedAt": { "$ref": "#/$defs/timestamp" },
+        "originalModelConfigVersionId": { "$ref": "#/$defs/id" },
+        "actualModelConfigVersionId": { "$ref": "#/$defs/id" },
+        "originalModelId": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "actualModelId": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "fallbackUsed": { "type": "boolean" },
+        "crossModelSubstitution": { "type": "boolean" },
+        "billingState": { "$ref": "#/$defs/billingState" },
+        "responseRef": {
+          "description": "Content-addressed object reference; absent when no response body was received.",
+          "type": ["string", "null"]
+        },
+        "normalizedUsage": { "$ref": "#/$defs/usage" },
+        "error": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["code", "retryable"],
+          "properties": {
+            "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+            "retryable": { "type": "boolean" },
+            "message": { "type": "string" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "fallbackUsed": { "const": false } }
+          },
+          "then": {
+            "properties": { "crossModelSubstitution": { "const": false } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["succeeded", "failed", "canceled"] } }
+          },
+          "then": { "required": ["finishedAt"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "failed" } }
+          },
+          "then": { "required": ["error"] }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+zhaunyi/
+*.sqlite3-wal
+*.sqlite3-shm
+apps/desktop/dist/
+apps/desktop/src-tauri/target/
+.promptlens-dev.json
+.promptlens-dev-home/
+.promptlens-runtime/
+.private-docs/
+.trae/
+dist-sidecar/
+*.log
+.DS_Store

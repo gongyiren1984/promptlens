@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，退款 1-3 个工作日到账。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 19,
+    "outputTokens": 8,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "8168f1e37bd7"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

@@ -1,0 +1,370 @@
+{
+  "schema": "promptlens.experiment-snapshot/v1",
+  "createdAt": "2026-11-25T17:28:48.041Z",
+  "clientVersion": "0.1.0",
+  "projectId": "01M89T70WXE1T6NDK0CMBG27FX",
+  "spec": {
+    "schema": "promptlens.experiment/v1",
+    "projectId": "01M89T70WXE1T6NDK0CMBG27FX",
+    "name": "客服回复 A/B 演示",
+    "description": "12 条用例 × 2 个分支 × 2 次重复，使用 mock 提供方验证完整链路。",
+    "variants": [
+      {
+        "label": "A",
+        "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW3",
+        "contentHash": "sha256:faf61fde9aeb78f64569de28373164ad31294da3de27e29214b027061f849efb"
+      },
+      {
+        "label": "B",
+        "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW5",
+        "contentHash": "sha256:0b4de097893637b5b7cbb2aa96b34881357d095786e3b61a9ef980238af3f92e"
+      }
+    ],
+    "testSet": {
+      "testSetVersionId": "01M89T710E5921X6074XRD6JYH",
+      "contentHash": "sha256:05500920c365b179efe404c91cd5c8cc44d8ab31ffea79feb92ae798fd13c2b1"
+    },
+    "models": [
+      {
+        "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+        "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+        "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da"
+      }
+    ],
+    "repetitions": 2,
+    "execution": {
+      "order": "sequential",
+      "maxAttempts": 3,
+      "backoffBaseMs": 50,
+      "maxBackoffMs": 200,
+      "maxConcurrency": 4
+    },
+    "evaluation": {
+      "profileVersionId": "01M89T7124CHX3C8W7TN4FK49S",
+      "contentHash": "sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed",
+      "judgeRepetitions": 1
+    },
+    "budget": {
+      "maxRequests": 200,
+      "maxDurationSeconds": 300,
+      "maxAmount": {
+        "amount": "1.00",
+        "currency": "USD"
+      }
+    }
+  },
+  "variants": [
+    {
+      "label": "A",
+      "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW3",
+      "promptName": "客服回复",
+      "variantLabel": "A",
+      "versionNumber": 1,
+      "content": "你是一个通用助手。请直接回答用户问题，不要寒暄。\n\n用户问题：{{question}}",
+      "variables": [
+        "question"
+      ],
+      "contentHash": "sha256:faf61fde9aeb78f64569de28373164ad31294da3de27e29214b027061f849efb"
+    },
+    {
+      "label": "B",
+      "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW5",
+      "promptName": "客服回复",
+      "variantLabel": "B",
+      "versionNumber": 1,
+      "content": "你是专业客服。请先感谢用户耐心等待，确认已为用户查询订单，并给出明确的下一步。\n\n用户问题：{{question}}",
+      "variables": [
+        "question"
+      ],
+      "contentHash": "sha256:0b4de097893637b5b7cbb2aa96b34881357d095786e3b61a9ef980238af3f92e"
+    }
+  ],
+  "testSet": {
+    "testSetVersionId": "01M89T710E5921X6074XRD6JYH",
+    "name": "基础集",
+    "contentHash": "sha256:05500920c365b179efe404c91cd5c8cc44d8ab31ffea79feb92ae798fd13c2b1",
+    "requestedSampleSize": null,
+    "samplingSeed": null,
+    "cases": [
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F4",
+        "contentHash": "sha256:9a51b9844d8146907b4e3887cddbd59e69fb4a9a103fc9a001999d6c334a4b8c",
+        "input": {
+          "question": "我的订单什么时候到？"
+        },
+        "expected": "预计今天送达",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，预计今天送达。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F5",
+        "contentHash": "sha256:d327771766c0e9a4ed66276d93de6ecb5e0f5668879c17c65626bfedcfe3b4ab",
+        "input": {
+          "question": "订单可以改地址吗？"
+        },
+        "expected": "可以修改收货地址",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，收货地址可以在配送前修改。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F6",
+        "contentHash": "sha256:c39396c45ec606421d32be01a7e548c3d98d83f4515f3e097873125ec0fa167e",
+        "input": {
+          "question": "我要退货，怎么操作？"
+        },
+        "expected": "进入订单详情申请退货",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，请在订单详情页申请退货。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F7",
+        "contentHash": "sha256:bd03ecd1998e3c2a3c7dac9c46c172f9df83510dfb461f9401d02949b1b58a52",
+        "input": {
+          "question": "发票什么时候能开？"
+        },
+        "expected": "确认收货后可开票",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，确认收货后即可申请发票。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F8",
+        "contentHash": "sha256:d3819f0e2a9e0a9d28234f822234e3a184ffe8fe601dcee9e145223ab0b3307e",
+        "input": {
+          "question": "订单显示已签收但我没收到。"
+        },
+        "expected": "核实签收信息并补发",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，我们会核实签收信息并为您补发。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3F9",
+        "contentHash": "sha256:b124ca96f31ea04b49cf0a3f01ee2ce0a307d3f56e2872bb55b1ca2112641903",
+        "input": {
+          "question": "可以指定快递吗？"
+        },
+        "expected": "视仓库情况安排",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，配送快递视仓库情况安排。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710DA5G22DR35969P3FA",
+        "contentHash": "sha256:b09e6b3d4983c2adad751f961c6597efbcb899737c847a6a723fe34c6502658d",
+        "input": {
+          "question": "优惠券为什么用不了？"
+        },
+        "expected": "检查使用门槛",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，请检查优惠券使用门槛与有效期。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYB",
+        "contentHash": "sha256:0562b8c67d6918519e17f4eb50898aab490357dcedc8ce16b0c9cdac27ae63ec",
+        "input": {
+          "question": "订单能加急吗？"
+        },
+        "expected": "可尝试加急但不保证",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": "感谢您的耐心等待，已为您查询订单，我们会尝试加急但不保证时效。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYC",
+        "contentHash": "sha256:8a52f1615c37eb8dad1aac56ae8250eecb11b25a24e6af001fe091b6bd58076f",
+        "input": {
+          "question": "退款多久到账？"
+        },
+        "expected": "1-3 个工作日",
+        "meta": {
+          "mock": {
+            "A": {
+              "failCode": "PROVIDER_RATE_LIMITED",
+              "failAttempts": 1,
+              "content": "不知道。订单请自行查看。"
+            },
+            "B": {
+              "failCode": "PROVIDER_RATE_LIMITED",
+              "failAttempts": 1,
+              "content": "感谢您的耐心等待，已为您查询订单，退款 1-3 个工作日到账。"
+            }
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYD",
+        "contentHash": "sha256:348f95a8242d1e63e64e0c7f87a46e751a98f73925c6ac0d7e9d487e89487835",
+        "input": {
+          "question": "订单状态一直不更新。"
+        },
+        "expected": "确认订单状态",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": {
+              "content": "",
+              "finishReason": "stop"
+            }
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYE",
+        "contentHash": "sha256:2707ea07c4564c43277fc8b31c9b90e3b3dab91f6e69db9e7d5fcb8dcfd0b730",
+        "input": {
+          "question": "包装破损怎么办？"
+        },
+        "expected": "拍照并申请售后",
+        "meta": {
+          "mock": {
+            "A": {
+              "content": "订单破损请自行查看处理。",
+              "finishReason": "length"
+            },
+            "B": "感谢您的耐心等待，已为您查询订单，请拍照并申请售后。"
+          }
+        }
+      },
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYF",
+        "contentHash": "sha256:150f666c2fb2ec9eda5d3e78439b17ec5842adf433d9a16a3822175caf66583f",
+        "input": {
+          "question": "能开发票吗？"
+        },
+        "expected": "可以开具发票",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": {
+              "errorCode": "PROVIDER_POLICY_BLOCKED"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "models": [
+    {
+      "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+      "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+      "name": "mock-primary",
+      "providerType": "mock",
+      "modelId": "mock-large",
+      "baseUrl": null,
+      "credentialRef": null,
+      "params": {},
+      "pricing": {
+        "currency": "USD",
+        "unit": "per_request",
+        "perRequest": "0.002"
+      },
+      "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da",
+      "fallbackModelConfigVersionIds": [],
+      "fallbackModels": []
+    }
+  ],
+  "evaluation": {
+    "profileVersionId": "01M89T7124CHX3C8W7TN4FK49S",
+    "name": "客服质量规则",
+    "contentHash": "sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed",
+    "config": {
+      "schema": "promptlens.evaluation-profile/v1",
+      "dimensions": [
+        {
+          "id": "accuracy",
+          "name": "信息准确性",
+          "weight": 0.4,
+          "gating": false,
+          "rules": [
+            {
+              "type": "contains",
+              "value": "订单"
+            }
+          ]
+        },
+        {
+          "id": "empathy",
+          "name": "共情与礼貌",
+          "weight": 0.4,
+          "gating": false,
+          "rules": [
+            {
+              "type": "contains",
+              "value": "感谢"
+            },
+            {
+              "type": "not_contains",
+              "value": "不知道"
+            }
+          ]
+        },
+        {
+          "id": "format",
+          "name": "格式规范",
+          "weight": 0.2,
+          "gating": false,
+          "rules": [
+            {
+              "type": "min_length",
+              "value": 10
+            },
+            {
+              "type": "max_length",
+              "value": 300
+            }
+          ]
+        }
+      ],
+      "judge": {
+        "enabled": false
+      }
+    }
+  },
+  "execution": {
+    "order": "sequential",
+    "seed": 0,
+    "maxAttempts": 3,
+    "backoffBaseMs": 50,
+    "maxBackoffMs": 200,
+    "maxConcurrency": 4
+  },
+  "repetitions": 2,
+  "budget": {
+    "maxRequests": 200,
+    "maxDurationSeconds": 300,
+    "maxAmount": {
+      "amount": "1.00",
+      "currency": "USD"
+    }
+  },
+  "hash": "sha256:7db93be645aeb3651a54f2d328d4c713454890c490b18236c2ede7d4657dc517"
+}

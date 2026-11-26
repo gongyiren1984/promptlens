@@ -1,0 +1,231 @@
+{
+  "schema": "promptlens.experiment-snapshot/v1",
+  "createdAt": "2026-11-25T18:40:10.497Z",
+  "clientVersion": "0.1.0",
+  "projectId": "01M89T70WXE1T6NDK0CMBG27FX",
+  "spec": {
+    "schema": "promptlens.experiment/v1",
+    "projectId": "01M89T70WXE1T6NDK0CMBG27FX",
+    "name": "FR-010 双模型对话冒烟",
+    "variants": [
+      {
+        "label": "客服回复·A",
+        "promptVersionId": "01M89W23583AVEJE2KTQR9TCH9",
+        "contentHash": "sha256:47cf6108a28f491125199446cae007fb3c83e8712a9d00b3c9f6b741eed7c0b6"
+      },
+      {
+        "label": "客服回复·B",
+        "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW5",
+        "contentHash": "sha256:0b4de097893637b5b7cbb2aa96b34881357d095786e3b61a9ef980238af3f92e"
+      }
+    ],
+    "testSet": {
+      "testSetVersionId": "01M89T710E5921X6074XRD6JYH",
+      "contentHash": "sha256:05500920c365b179efe404c91cd5c8cc44d8ab31ffea79feb92ae798fd13c2b1",
+      "sampleSize": 1
+    },
+    "models": [
+      {
+        "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+        "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+        "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da"
+      }
+    ],
+    "repetitions": 1,
+    "execution": {
+      "order": "sequential",
+      "maxAttempts": 1,
+      "maxConcurrency": 1,
+      "dialogue": {
+        "maxRounds": 2,
+        "generatorModelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+        "initialInputPolicy": "case_first",
+        "maxOutputTokensPerTurn": 128,
+        "termination": [
+          {
+            "type": "literal",
+            "value": "<END>"
+          }
+        ]
+      }
+    },
+    "evaluation": {
+      "profileVersionId": "01M89T7124CHX3C8W7TN4FK49S",
+      "contentHash": "sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed"
+    },
+    "budget": {
+      "maxRequests": 50,
+      "maxDurationSeconds": 120
+    }
+  },
+  "variants": [
+    {
+      "label": "客服回复·A",
+      "promptVersionId": "01M89W23583AVEJE2KTQR9TCH9",
+      "promptName": "客服回复",
+      "variantLabel": "A",
+      "versionNumber": 2,
+      "content": "你是一个通用助手。请直接回答用户问题，不要寒暄。\n\n用户问题：{{question}}\n请保持简洁。",
+      "variables": [
+        "question"
+      ],
+      "contentHash": "sha256:47cf6108a28f491125199446cae007fb3c83e8712a9d00b3c9f6b741eed7c0b6"
+    },
+    {
+      "label": "客服回复·B",
+      "promptVersionId": "01M89T70YPT0RWFNHGGVNASKW5",
+      "promptName": "客服回复",
+      "variantLabel": "B",
+      "versionNumber": 1,
+      "content": "你是专业客服。请先感谢用户耐心等待，确认已为用户查询订单，并给出明确的下一步。\n\n用户问题：{{question}}",
+      "variables": [
+        "question"
+      ],
+      "contentHash": "sha256:0b4de097893637b5b7cbb2aa96b34881357d095786e3b61a9ef980238af3f92e"
+    }
+  ],
+  "testSet": {
+    "testSetVersionId": "01M89T710E5921X6074XRD6JYH",
+    "name": "基础集",
+    "contentHash": "sha256:05500920c365b179efe404c91cd5c8cc44d8ab31ffea79feb92ae798fd13c2b1",
+    "requestedSampleSize": 1,
+    "samplingSeed": null,
+    "cases": [
+      {
+        "caseVersionId": "01M89T710E5921X6074XRD6JYF",
+        "contentHash": "sha256:150f666c2fb2ec9eda5d3e78439b17ec5842adf433d9a16a3822175caf66583f",
+        "input": {
+          "question": "能开发票吗？"
+        },
+        "expected": "可以开具发票",
+        "meta": {
+          "mock": {
+            "A": "不知道。订单请自行查看。",
+            "B": {
+              "errorCode": "PROVIDER_POLICY_BLOCKED"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "models": [
+    {
+      "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+      "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+      "name": "mock-primary",
+      "providerType": "mock",
+      "modelId": "mock-large",
+      "baseUrl": null,
+      "credentialRef": null,
+      "params": {},
+      "pricing": {
+        "currency": "USD",
+        "unit": "per_request",
+        "perRequest": "0.002"
+      },
+      "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da",
+      "fallbackModelConfigVersionIds": [],
+      "fallbackModels": []
+    }
+  ],
+  "dialogue": {
+    "maxRounds": 2,
+    "initialInputPolicy": "case_first",
+    "maxOutputTokensPerTurn": 128,
+    "termination": [
+      {
+        "type": "literal",
+        "value": "<END>"
+      }
+    ],
+    "generatorModel": {
+      "modelConfigVersionId": "01M89T713VP2NE202RGA11WMZH",
+      "modelProfileId": "01M89T713TMKQEKT65AM5A9MW9",
+      "name": "mock-primary",
+      "providerType": "mock",
+      "modelId": "mock-large",
+      "baseUrl": null,
+      "credentialRef": null,
+      "params": {},
+      "pricing": {
+        "currency": "USD",
+        "unit": "per_request",
+        "perRequest": "0.002"
+      },
+      "contentHash": "sha256:62f4d1b9bbe51bea9ef5a35e5d98e3a6f5b5cc32ffc452ece6c77af316b992da"
+    },
+    "generatorPrompt": null
+  },
+  "evaluation": {
+    "profileVersionId": "01M89T7124CHX3C8W7TN4FK49S",
+    "name": "客服质量规则",
+    "contentHash": "sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed",
+    "config": {
+      "schema": "promptlens.evaluation-profile/v1",
+      "dimensions": [
+        {
+          "id": "accuracy",
+          "name": "信息准确性",
+          "weight": 0.4,
+          "gating": false,
+          "rules": [
+            {
+              "type": "contains",
+              "value": "订单"
+            }
+          ]
+        },
+        {
+          "id": "empathy",
+          "name": "共情与礼貌",
+          "weight": 0.4,
+          "gating": false,
+          "rules": [
+            {
+              "type": "contains",
+              "value": "感谢"
+            },
+            {
+              "type": "not_contains",
+              "value": "不知道"
+            }
+          ]
+        },
+        {
+          "id": "format",
+          "name": "格式规范",
+          "weight": 0.2,
+          "gating": false,
+          "rules": [
+            {
+              "type": "min_length",
+              "value": 10
+            },
+            {
+              "type": "max_length",
+              "value": 300
+            }
+          ]
+        }
+      ],
+      "judge": {
+        "enabled": false
+      }
+    }
+  },
+  "execution": {
+    "order": "sequential",
+    "seed": 0,
+    "maxAttempts": 1,
+    "backoffBaseMs": 500,
+    "maxBackoffMs": 8000,
+    "maxConcurrency": 1
+  },
+  "repetitions": 1,
+  "budget": {
+    "maxRequests": 50,
+    "maxDurationSeconds": 120
+  },
+  "hash": "sha256:a661088f2b1ee32b763d29650dcff1d31a5674587acf7f8df4650aba291fe65d"
+}

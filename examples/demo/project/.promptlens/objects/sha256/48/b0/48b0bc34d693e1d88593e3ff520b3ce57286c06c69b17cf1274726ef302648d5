@@ -1,0 +1,15 @@
+{
+  "content": "感谢您的耐心等待，已为您查询订单，确认收货后即可申请发票。",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 20,
+    "outputTokens": 8,
+    "cachedInputTokens": 0,
+    "reasoningTokens": 0,
+    "raw": {
+      "mock": true,
+      "seed": "7ea1c91dbfaf"
+    },
+    "normalizerVersion": "mock/1"
+  }
+}

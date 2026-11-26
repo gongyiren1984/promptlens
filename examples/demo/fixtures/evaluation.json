@@ -1,0 +1,35 @@
+{
+  "schema": "promptlens.evaluation-profile/v1",
+  "dimensions": [
+    {
+      "id": "accuracy",
+      "name": "信息准确性",
+      "weight": 0.4,
+      "gating": false,
+      "rules": [
+        { "type": "contains", "value": "订单" }
+      ]
+    },
+    {
+      "id": "empathy",
+      "name": "共情与礼貌",
+      "weight": 0.4,
+      "gating": false,
+      "rules": [
+        { "type": "contains", "value": "感谢" },
+        { "type": "not_contains", "value": "不知道" }
+      ]
+    },
+    {
+      "id": "format",
+      "name": "格式规范",
+      "weight": 0.2,
+      "gating": false,
+      "rules": [
+        { "type": "min_length", "value": 10 },
+        { "type": "max_length", "value": 300 }
+      ]
+    }
+  ],
+  "judge": { "enabled": false }
+}

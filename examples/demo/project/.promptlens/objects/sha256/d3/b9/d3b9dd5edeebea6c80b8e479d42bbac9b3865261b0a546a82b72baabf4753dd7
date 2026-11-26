@@ -1,0 +1,114 @@
+# 标准实验报告
+> 报告模板：tpl-standard-v1 · 语言：zh-CN · 生成器：promptlens/0.1.0
+
+## 运行摘要
+
+- 运行：`01M89T719PD85QEWQHCF3PKHM6`（completed）
+- 快照：`sha256:7db93be645aeb3651a54f2d328d4c713454890c490b18236c2ede7d4657dc517`
+- 计划：A / B × mock-primary × 12 用例 × 2 次重复
+- Trial：48，其中有效输出 42，可比较 42，fallback 0
+- 结论：B/mock-primary 在有效样本上领先 A/mock-primary 0.400，方向性支持该分支，但不等于统计显著。
+
+## 实验快照
+
+- 快照哈希：`sha256:7db93be645aeb3651a54f2d328d4c713454890c490b18236c2ede7d4657dc517`
+- 运行创建：2026-11-25T16:56:53.302Z
+- 测试集：基础集（12 条，版本 `01M89T710E5921X6074XRD6JYH`）
+- 执行参数：maxAttempts=3，maxConcurrency=4，order=sequential
+
+| 模型 | 提供方 | 模型 ID | 回退数 |
+| --- | --- | --- | --- |
+| mock-primary | mock | mock-large | 0 |
+
+凭据引用已脱敏（credentialRef），报告中不包含密钥值。
+
+## 评估方法
+
+- 评分方案：客服质量规则（`01M89T7124CHX3C8W7TN4FK49S`，哈希 `sha256:ad0577f8947fe5c9109a11b1e0645389472b88e49cbc79f6cfd0688cc105a9ed`）
+- LLM 评审：未启用（仅规则评估）
+
+| 维度 | 权重 | 规则数 | 门槛 |
+| --- | --- | --- | --- |
+| 信息准确性（`accuracy`） | 0.4 | 1 | 否 |
+| 共情与礼貌（`empathy`） | 0.4 | 2 | 否 |
+| 格式规范（`format`） | 0.2 | 2 | 否 |
+
+维度分数 = 规则通过率（与可选的评审分数取平均）；总分 = 维度加权平均。无效输出不参与均值。
+
+## 分维度结果
+
+| 分支 | 模型 | Trial | 有效 | 可比较 | 均值 | 95% CI | 信息准确性 | 共情与礼貌 | 格式规范 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| A | mock-primary | 24 | 22 | 22 | 0.600 | ±0.000 | 1.000 | 0.000 | 1.000 |
+| B | mock-primary | 24 | 20 | 20 | 1.000 | ±0.000 | 1.000 | 1.000 | 1.000 |
+
+## 逐用例证据
+
+**A / mock-primary** · 用例：{"question":"我的订单什么时候到？"} · 分数：0.600
+
+> 不知道。订单请自行查看。
+
+**A / mock-primary** · 用例：{"question":"我的订单什么时候到？"} · 分数：0.600
+
+> 不知道。订单请自行查看。
+
+**A / mock-primary** · 用例：{"question":"订单可以改地址吗？"} · 分数：0.600
+
+> 不知道。订单请自行查看。
+
+**B / mock-primary** · 用例：{"question":"我的订单什么时候到？"} · 分数：1.000
+
+> 感谢您的耐心等待，已为您查询订单，预计今天送达。
+
+**B / mock-primary** · 用例：{"question":"我的订单什么时候到？"} · 分数：1.000
+
+> 感谢您的耐心等待，已为您查询订单，预计今天送达。
+
+**B / mock-primary** · 用例：{"question":"订单可以改地址吗？"} · 分数：1.000
+
+> 感谢您的耐心等待，已为您查询订单，收货地址可以在配送前修改。
+
+## 失败与无效输出
+
+- 失败 0，取消 0，无效输出 6，fallback 0
+
+| 分支 | 模型 | 用例 | 执行状态 | 输出有效性 | 不可比原因 |
+| --- | --- | --- | --- | --- | --- |
+| A | mock-primary | {"question":"包装破损怎么办？"} | completed | invalid_truncated | invalid_output |
+| A | mock-primary | {"question":"包装破损怎么办？"} | completed | invalid_truncated | invalid_output |
+| B | mock-primary | {"question":"订单状态一直不更新。"} | completed | invalid_empty | invalid_output |
+| B | mock-primary | {"question":"订单状态一直不更新。"} | completed | invalid_empty | invalid_output |
+| B | mock-primary | {"question":"能开发票吗？"} | completed | policy_blocked | invalid_output |
+| B | mock-primary | {"question":"能开发票吗？"} | completed | policy_blocked | invalid_output |
+
+
+## 成本与耗时
+
+- 总成本：0.104000 USD
+- 平均请求耗时：4 ms（样本 52）
+- 价格完整度：全部模型价格已知。
+
+| 模型 | 请求数 | 成本 |
+| --- | --- | --- |
+| mock-primary | 52 | 0.104000 USD |
+
+## 不确定性
+
+- 用例数：12，重复次数：2
+- 本报告不声明统计显著性；95% CI 为大样本正态近似，仅供参考。
+
+| 分支 | 模型 | 有效样本 | 标准差 | 95% CI |
+| --- | --- | --- | --- | --- |
+| A | mock-primary | 22 | 0.000 | ±0.000 |
+| B | mock-primary | 20 | 0.000 | ±0.000 |
+
+
+## 限制与建议
+
+- 运行包含 mock 提供方结果，只能验证流程与指标链路，不能代表真实模型表现。
+- 测试集仅 12 条用例，覆盖率有限；结论不应外推到未覆盖场景。
+- 本次评估仅使用确定性规则，未包含语义评审，可能低估表达质量差异。
+- 规则通过率反映预设约束，不等同于人工质量判断；落地前建议人工抽检。
+
+运行告警：
+- [MOCK_PROVIDER] 运行使用了 mock 提供方，输出不代表真实模型质量。
